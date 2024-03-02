@@ -1,6 +1,6 @@
 from enum import Enum
 import unittest
-from chargin_station import *
+from charging_station import *
 
 class TestChargingService(unittest.TestCase):
     def setUp(self):
@@ -11,6 +11,7 @@ class TestChargingService(unittest.TestCase):
         self.chargers = [self.charger1, self.charger2, self.charger3]
 
         self.charging_service = ChargingService(self.chargers, 1.0)
+        self.sessions = []
 
     def test_start_charging(self):
         charging_session = ChargingSession(1, "ABC123", 1, 1, ChargingStatus.FINISHED, 0, 0)
@@ -22,6 +23,7 @@ class TestChargingService(unittest.TestCase):
     def test_stop_charging(self):
         charging_session = ChargingSession(1, "ABC123", 1, 1, ChargingStatus.OPEN, 0, 0)
         self.charger1.status = ChargingStatus.OPEN
+        self.sessions.append(charging_session)
 
         self.assertTrue(self.charging_service.stop_charging(1, "ABC123"))
         self.assertEqual(self.charger1.status, ChargingStatus.FINISHED)

@@ -42,9 +42,10 @@ class ChargingSession:
         return f"Charging Session with ID {self.csid}, car VIN: {self.car_vin}, charger ID: {self.charger_id}, client ID: {self.client_id}, status: {self.status.value}, current kW: {self.current_kw}, total kWh: {self.total_kwh}"
 
 class ChargingService:
-    def __init__(self, chargers: list, time_modifier: float):
+    def __init__(self, chargers: list, time_modifier: float, sessions: list = []):
         self.chargers = chargers
         self.time_modifier = time_modifier
+        self.sessions = sessions
 
     def start_charging(self, client_id, vin, kwh, desired_current_kw, charger_position: int):
         # check if charger available and supports such desired_current
@@ -57,10 +58,12 @@ class ChargingService:
         return False
 
     def stop_charging(self, client_id, vin):
-        for charger in self.chargers:
-            if charger.status == ChargingStatus.OPEN and charger.car_vin == vin:
-                charger.status = ChargingStatus.FINISHED
-                return True
+        for session in self.sessions:
+            if session.car_vin == vin:
+                for charger in self.chargers:
+                    if charger.status == ChargingStatus.OPEN and charger.car_vin == vin:
+                        charger.status = ChargingStatus.FINISHED
+                        return True
         return False
 
     def attach_charger(self, charger):
