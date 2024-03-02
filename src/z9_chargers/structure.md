@@ -16,6 +16,9 @@ Car
 
 ChargingSession
 - csid
+- car_vin
+- charger_id
+- client_id
 - status
 - current_kw
 - total_kwh
@@ -48,7 +51,5 @@ ChargerStatus
 - FREE
 - CHARGING
 - ERROR
-
-... error codes...
 
 ```
