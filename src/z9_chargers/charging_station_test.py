@@ -9,13 +9,16 @@ class TestChargingService(unittest.TestCase):
         self.charger3 = Charger(20, 70, ChargerStatus.FREE)
 
         self.chargers = [self.charger1, self.charger2, self.charger3]
-
-        self.charging_service = ChargingService(self.chargers, 1.0)
+        
         self.sessions = []
+
+        self.charging_service = ChargingService(self.chargers, 1.0, self.sessions)
+
 
     def test_start_charging(self):
         charging_session = ChargingSession(1, "ABC123", 1, 1, ChargingStatus.FINISHED, 0, 0)
         self.charger1.status = ChargingStatus.FINISHED
+        self.sessions.append(charging_session)
 
         self.assertTrue(self.charging_service.start_charging(1, "ABC123", 50, 10, 0))
         self.assertEqual(self.charger1.status, ChargingStatus.OPEN)
@@ -40,7 +43,7 @@ class TestChargingService(unittest.TestCase):
     def test_enable_charger(self):
         self.charging_service.disable_charger(0)
         self.charging_service.enable_charger(0)
-        self.assertEqual(self.charger1.status, ChargingStatus.OPEN)
+        self.assertEqual(self.charger1.status, ChargingStatus.FINISHED)
 
     def test_remove_charger(self):
         self.charging_service.remove_charger(self.charger1)

@@ -42,7 +42,7 @@ class ChargingSession:
         return f"Charging Session with ID {self.csid}, car VIN: {self.car_vin}, charger ID: {self.charger_id}, client ID: {self.client_id}, status: {self.status.value}, current kW: {self.current_kw}, total kWh: {self.total_kwh}"
 
 class ChargingService:
-    def __init__(self, chargers: list, time_modifier: float, sessions: list = []):
+    def __init__(self, chargers: list, time_modifier: float, sessions):
         self.chargers = chargers
         self.time_modifier = time_modifier
         self.sessions = sessions
@@ -50,9 +50,8 @@ class ChargingService:
     def start_charging(self, client_id, vin, kwh, desired_current_kw, charger_position: int):
         # check if charger available and supports such desired_current
         charger = self.chargers[charger_position]
-        if charger.status == ChargingStatus.FINISHED:
+        if charger.status == ChargingStatus.FINISHED and desired_current_kw == charger.max_current_kw:
             charger.status = ChargingStatus.OPEN
-            charger.current_kw = desired_current_kw
             charger.total_kwh = kwh
             return True
         return False
@@ -60,10 +59,10 @@ class ChargingService:
     def stop_charging(self, client_id, vin):
         for session in self.sessions:
             if session.car_vin == vin:
-                for charger in self.chargers:
-                    if charger.status == ChargingStatus.OPEN and charger.car_vin == vin:
-                        charger.status = ChargingStatus.FINISHED
-                        return True
+                charger = self.chargers[session.charger_id-1]
+                if charger.status == ChargingStatus.OPEN:
+                    charger.status = ChargingStatus.FINISHED
+                    return True
         return False
 
     def attach_charger(self, charger):
@@ -73,7 +72,7 @@ class ChargingService:
         self.chargers[charger_position].status = ChargingStatus.ERROR
 
     def enable_charger(self, charger_position: int):
-        self.chargers[charger_position].status = ChargingStatus.OPEN
+        self.chargers[charger_position].status = ChargingStatus.FINISHED
 
     def remove_charger(self, charger):
         self.chargers.remove(charger)
