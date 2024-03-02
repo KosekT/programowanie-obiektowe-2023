@@ -22,7 +22,11 @@ class Charger:
         self.max_current_kw = max_current_kw
         self.total_charged_kw = total_charged_kw
         self.status = status
-
+        
+class ChargingStatus(Enum):
+    OPEN = "Open"
+    ERROR = "Error"
+    FINISHED = "Finished"
 
 class ChargingSession:
     def __init__(self, csid: int, car_vin: str, charger_id: int, client_id: int, status: ChargingStatus, current_kw: int, total_kwh: int):
